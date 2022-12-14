@@ -11,6 +11,15 @@ def find_card(x,y):
         if distance < min_dis:
             min_dis = distance
             min_idx = i
+    return min_idx
+
+def score_update(m):
+    score_pen.clear()
+    score_pen.write(f"{m} {score}점/{attempt}번 시도", False, "center", ("",15))
+
+def result(m):
+    t.goto(0, -60)       # 해당 좌표 위치에 
+    t.write(m, False, "center", ("",30, "bold")) # Game Over가 나타날 수 있게 작성
 
 def play(x,y):
     global click_num
@@ -20,10 +29,29 @@ def play(x,y):
     global score
 
     if attempt == 12:
-        t.goto(0, -60)       # 해당 좌표 위치에 
-        t.write("Game Over", False, "center", ("",30, "bold")) # Game Over가 나타날 수 있게 작성
+        result("Game Over")
+           
     else: 
         click_num += 1
+        card_idx = find_card(x,y)
+        turtles[card_idx].shape(img_list[card_idx])
+
+        if click_num == 1:
+            first_pick = card_idx
+        elif click_num == 2:
+            second_pick = card_idx
+            click_num = 0          #클릭 2번을 했을 때 클릭 횟수를 초기화 시켜준다
+            attempt += 1           #클릭 2번 했을 때 시도 숫자를 1씩 증가시킨다
+
+            if img_list[first_pick] == img_list[second_pick]:
+                score += 1
+                score_update("정답")
+                if score == 8:
+                    result("성공")
+            else:
+                score_update("오답")
+                turtles[first_pick].shape(default_img)
+                turtles[second_pick].shape(default_img)
 
 t.bgcolor("pink")
 t.setup(700,700)
@@ -31,6 +59,13 @@ t.up()
 t.ht()
 t.goto(0,280)
 t.write("카드매칭게임", False, "center", ("", 30, "bold")) 
+
+#점수 펜 객체 생성
+score_pen = t.Turtle()
+score_pen.up()
+score_pen.ht()
+score_pen.goto(0,230)
+
 
 #터틀 객체 생성
 turtles = []
@@ -77,5 +112,5 @@ t.onscreenclick(play)
 
 
 t.done()
-turtle.exitonclick()
+turtle.exitonclick() 
 input("Press any key to exit ...")
